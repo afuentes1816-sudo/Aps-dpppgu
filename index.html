@@ -1,28 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard de Rendimiento - Sistema APS</title>
-
-  <!-- Tailwind (CDN) -->
-  <script src="https://cdn.tailwindcss.com" defer></script>
-
-  <!-- React 18 + ReactDOM 18 (UMD) -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" defer></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" defer></script>
-
-  <!-- Recharts (UMD, expone window.Recharts) -->
-  <script src="https://unpkg.com/recharts/umd/Recharts.min.js" defer></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Diagnóstico APS + Recharts</title>
   <style>
-    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;background:#f6f8ff}
+    .wrap{max-width:960px;margin:24px auto;padding:16px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:16px}
+    .ok{color:#16a34a;font-weight:600}
+    .bad{color:#dc2626;font-weight:600}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap}
+    #root{height:420px}
   </style>
-</head>
-<body>
-  <div id="root"></div>
 
-  <!-- Tu app: JS plano (sin Babel, sin type="module") -->
-  <script src="app.js" defer></script>
-</body>
-</html>
+  <!-- Scripts con onerror para escribir el fallo en pantalla -->
+  <script>
+    function scriptFail(name, ev){
+      const box = document.getElementById('diag');
+      if (box) {
+        const p = document.createElement('p');
+        p.className = 'bad mono';
+        p.textContent = `❌ Falló al cargar: ${name} — ${ev && ev.message ? ev.message : 'revisa la URL/CDN'}`;
+        box.appendChild(p);
+      }
+    }
+  </script>
+
+  <!-- React 18 -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"
+          crossorigin="anonymous"
+          onerror="scriptFail('react.production.min.js', event
