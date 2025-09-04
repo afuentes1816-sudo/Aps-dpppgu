@@ -1,4 +1,4 @@
-onst { useState } = React;
+const { useState } = React;
 const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } = Recharts;
 
 const PerformanceCharts = () => {
