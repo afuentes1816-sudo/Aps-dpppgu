@@ -1,13 +1,155 @@
-<!doctype html>
-<html><meta charset="utf-8"><title>Smoke</title>
-<body style="font-family:system-ui;padding:24px">
-  <h1>🫡 Hola, Pages sí sirve este archivo</h1>
-  <p>Si ves esto, la config de Pages está OK. Si no lo ves, revisa:</p>
-  <ol>
-    <li>Settings → Pages → <b>Deploy from a branch</b>, Branch: <b>main</b>, Folder: <b>/ (root)</b>, Save.</li>
-    <li>Tu URL exacta (respetando mayúsculas del repo):<br>
-      <code>https://afuentes1816-sudo.github.io/Aps-dpppgu/</code>
-    </li>
-    <li>Que <b>index.html</b> esté en la <b>raíz</b> de <b>main</b>.</li>
-  </ol>
-</body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard de Rendimiento - Sistema APS</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com" defer></script>
+
+  <!-- React 18 + ReactDOM 18 (UMD estables) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" defer></script>
+
+  <!-- Recharts UMD -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.7/Recharts.min.js" defer></script>
+
+  <style>body{margin:0;font-family:system-ui,-apple-system,sans-serif}</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+  // Esperar a que carguen los scripts con "defer"
+  (function start(){
+    if (!(window.React && window.ReactDOM && window.Recharts)) {
+      return setTimeout(start, 30);
+    }
+
+    const { useState } = React;
+    const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
+
+    const PerformanceCharts = () => {
+      const [activeTab, setActiveTab] = useState('aps');
+
+      // Datos
+      const apsData = [
+        { name: '45,000 casos', casos: 45000, tiempo: 90,  tiempoHoras: '1:30' },
+        { name: '200,000 casos', casos: 200000, tiempo: 360, tiempoHoras: '6:00' }
+      ];
+      const noConsideradosData = [
+        { proceso: 'Antes de optimización',   tiempo: 240, tiempoDisplay: '4:00 hrs', casos: 200000 },
+        { proceso: 'Después de optimización', tiempo: 0.5, tiempoDisplay: '0:30 min', casos: 200000 }
+      ];
+      const pguData = [
+        { name: '40k casos',         casos: 40000,  tiempo: 45, tiempoDisplay: '45 min',   tipo: 'Original' },
+        { name: '140k (original)',   casos: 140000, tiempo: 70, tiempoDisplay: '1:10 hrs', tipo: 'Original' },
+        { name: '140k (optimizado)', casos: 140000, tiempo: 10, tiempoDisplay: '10 min',   tipo: 'Optimizado' }
+      ];
+
+      const CustomTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+          const d = payload[0].payload;
+          return React.createElement('div', { className:'bg-white p-4 border border-gray-300 rounded shadow-lg' }, [
+            React.createElement('p', { className:'font-semibold', key:'l' }, label),
+            React.createElement('p', { className:'text-blue-600', key:'c' }, `Casos: ${d.casos ? d.casos.toLocaleString() : 'N/A'}`),
+            React.createElement('p', { className:'text-green-600', key:'t' }, `Tiempo: ${d.tiempoDisplay || d.tiempoHoras || `${payload[0].value} min`}`)
+          ]);
+        }
+        return null;
+      };
+
+      const formatTime = (m) => {
+        if (m < 1) return `${Math.round(m*60)}s`;
+        if (m < 60) return `${Math.round(m)}m`;
+        const h = Math.floor(m/60), mm = Math.round(m%60);
+        return mm ? `${h}h ${mm}m` : `${h}h`;
+      };
+
+      const Tab = (id, label) => React.createElement('button', {
+        onClick: () => setActiveTab(id),
+        className: `px-6 py-2 rounded-md transition-all ${activeTab === id ? 'bg-blue-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`
+      }, label);
+
+      const Card = (className, kids, key) => React.createElement('div', { className, key }, kids);
+
+      return React.createElement('div', { className:'w-full max-w-6xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg' }, [
+        React.createElement('h1', { className:'text-3xl font-bold text-center mb-8 text-gray-800', key:'title' }, '📊 Comparativo de Rendimiento del Sistema'),
+
+        React.createElement('div', { className:'flex justify-center mb-6', key:'nav' }, [
+          React.createElement('div', { className:'bg-white rounded-lg p-1 shadow-md', key:'navc' }, [
+            Tab('aps','Procesamiento APS'),
+            Tab('no','Etapa No Considerados'),
+            Tab('pgu','Archivo PGU'),
+          ])
+        ]),
+
+        activeTab === 'aps' && Card('bg-white rounded-lg shadow-lg p-6 mb-6', [
+          React.createElement('h2',{ className:'text-2xl font-semibold mb-4 text-gray-700', key:'a1'},'🔄 Procesamiento APS - Tiempo por Volumen'),
+          React.createElement(ResponsiveContainer,{ width:'100%', height:400, key:'ac' },[
+            React.createElement(BarChart,{ data:apsData, margin:{top:20,right:30,left:20,bottom:5}, key:'abc' },[
+              React.createElement(CartesianGrid,{ strokeDasharray:'3 3',key:'g' }),
+              React.createElement(XAxis,{ dataKey:'name', key:'x' }),
+              React.createElement(YAxis,{ label:{value:'Tiempo',angle:-90,position:'insideLeft'}, tickFormatter:formatTime, key:'y' }),
+              React.createElement(Tooltip,{ content:CustomTooltip, key:'tt' }),
+              React.createElement(Legend,{ key:'l' }),
+              React.createElement(Bar,{ dataKey:'tiempo', fill:'#3b82f6', name:'Tiempo', radius:[4,4,0,0], key:'b' })
+            ])
+          ])
+        ], 'aps'),
+
+        activeTab === 'no' && Card('bg-white rounded-lg shadow-lg p-6 mb-6', [
+          React.createElement('h2',{ className:'text-2xl font-semibold mb-4 text-gray-700', key:'n1'},'🧹 No Considerados - Antes vs. Después'),
+          React.createElement(ResponsiveContainer,{ width:'100%', height:400, key:'nc' },[
+            React.createElement(BarChart,{ data:noConsideradosData, margin:{top:20,right:30,left:20,bottom:5}, key:'nbc' },[
+              React.createElement(CartesianGrid,{ strokeDasharray:'3 3',key:'g' }),
+              React.createElement(XAxis,{ dataKey:'proceso', key:'x' }),
+              React.createElement(YAxis,{ label:{value:'Tiempo',angle:-90,position:'insideLeft'}, tickFormatter:formatTime, key:'y' }),
+              React.createElement(Tooltip,{ content:CustomTooltip, key:'tt' }),
+              React.createElement(Legend,{ key:'l' }),
+              React.createElement(Bar,{ dataKey:'tiempo', fill:'#10b981', name:'Tiempo', radius:[4,4,0,0], key:'b' })
+            ])
+          ])
+        ], 'no'),
+
+        activeTab === 'pgu' && Card('bg-white rounded-lg shadow-lg p-6 mb-6', [
+          React.createElement('h2',{ className:'text-2xl font-semibold mb-4 text-gray-700', key:'p1'},'🏦 PGU - Original vs Optimizado'),
+          React.createElement(ResponsiveContainer,{ width:'100%', height:400, key:'pc' },[
+            React.createElement(BarChart,{ data:pguData, margin:{top:20,right:30,left:20,bottom:5}, key:'pbc' },[
+              React.createElement(CartesianGrid,{ strokeDasharray:'3 3',key:'g' }),
+              React.createElement(XAxis,{ dataKey:'name', key:'x' }),
+              React.createElement(YAxis,{ label:{value:'Tiempo',angle:-90,position:'insideLeft'}, tickFormatter:formatTime, key:'y' }),
+              React.createElement(Tooltip,{ content:CustomTooltip, key:'tt' }),
+              React.createElement(Legend,{ key:'l' }),
+              React.createElement(Bar,{ dataKey:'tiempo', fill:'#8b5cf6', name:'Tiempo', radius:[4,4,0,0], key:'b' })
+            ])
+          ])
+        ], 'pgu'),
+
+        Card('bg-white rounded-lg shadow-lg p-6', [
+          React.createElement('h2', { className:'text-2xl font-semibold mb-6 text-gray-700', key:'s1' }, '📋 Resumen de Mejoras de Rendimiento'),
+          React.createElement('div', { className:'grid grid-cols-1 md:grid-cols-3 gap-4', key:'s2' }, [
+            Card('bg-gradient-to-br from-blue-100 to-blue-200 p-4 rounded-lg', [
+              React.createElement('h3', { className:'font-semibold text-blue-800 mb-2', key:'sb1' }, 'Procesamiento APS'),
+              React.createElement('p', { className:'text-sm text-blue-700', key:'sb1p' }, '45k: 1:30 hrs · 200k: 6:00 hrs · Escala con volumen')
+            ], 'sum-aps'),
+            Card('bg-gradient-to-br from-green-100 to-green-200 p-4 rounded-lg', [
+              React.createElement('h3', { className:'font-semibold text-green-800 mb-2', key:'sb2' }, 'No Considerados'),
+              React.createElement('p', { className:'text-sm text-green-700', key:'sb2p' }, 'Mejora ~99.9% (4h → 30s)')
+            ], 'sum-no'),
+            Card('bg-gradient-to-br from-purple-100 to-purple-200 p-4 rounded-lg', [
+              React.createElement('h3', { className:'font-semibold text-purple-800 mb-2', key:'sb3' }, 'Archivo PGU'),
+              React.createElement('p', { className:'text-sm text-purple-700', key:'sb3p' }, '140k: 1:10h → 10min (optimizado)')
+            ], 'sum-pgu')
+          ])
+        ], 'summary')
+      ]);
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(PerformanceCharts));
+  })();
+  </script>
+</body>
+</html>
