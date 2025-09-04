@@ -1,33 +1,13 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Diagnóstico APS + Recharts</title>
-  <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;background:#f6f8ff}
-    .wrap{max-width:960px;margin:24px auto;padding:16px}
-    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:16px}
-    .ok{color:#16a34a;font-weight:600}
-    .bad{color:#dc2626;font-weight:600}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap}
-    #root{height:420px}
-  </style>
-
-  <!-- Scripts con onerror para escribir el fallo en pantalla -->
-  <script>
-    function scriptFail(name, ev){
-      const box = document.getElementById('diag');
-      if (box) {
-        const p = document.createElement('p');
-        p.className = 'bad mono';
-        p.textContent = `❌ Falló al cargar: ${name} — ${ev && ev.message ? ev.message : 'revisa la URL/CDN'}`;
-        box.appendChild(p);
-      }
-    }
-  </script>
-
-  <!-- React 18 -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"
-          crossorigin="anonymous"
-          onerror="scriptFail('react.production.min.js', event
+<!doctype html>
+<html><meta charset="utf-8"><title>Smoke</title>
+<body style="font-family:system-ui;padding:24px">
+  <h1>🫡 Hola, Pages sí sirve este archivo</h1>
+  <p>Si ves esto, la config de Pages está OK. Si no lo ves, revisa:</p>
+  <ol>
+    <li>Settings → Pages → <b>Deploy from a branch</b>, Branch: <b>main</b>, Folder: <b>/ (root)</b>, Save.</li>
+    <li>Tu URL exacta (respetando mayúsculas del repo):<br>
+      <code>https://afuentes1816-sudo.github.io/Aps-dpppgu/</code>
+    </li>
+    <li>Que <b>index.html</b> esté en la <b>raíz</b> de <b>main</b>.</li>
+  </ol>
+</body></html>
